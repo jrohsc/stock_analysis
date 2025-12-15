@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Investor Lens — 투자자별 종목/ETF 분석</title>
+  <meta name="description" content="워렌 버핏, 피터 린치, 찰리 멍거 등 투자 거물의 관점으로 종목/ETF를 비교 분석하는 개인 위키" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Investor Lens — 투자자별 종목/ETF 분석" />
+  <meta property="og:description" content="같은 종목을 5명의 투자자 렌즈로 비교해보세요" />
+  <meta property="og:type" content="website" />
+  <!-- og:image는 나중에 올리고 경로만 맞추면 됨 -->
+  <!-- <meta property="og:image" content="https://<username>.github.io/<repo>/assets/og.png" /> -->
+
+  <meta name="theme-color" content="#667eea" />
+
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #0c1421 0%, #1a1a2e 50%, #16213e 100%);
+      --panel: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      --panel-border: rgba(255,255,255,0.15);
+      --glass: rgba(255,255,255,0.1);
+      --text:#ffffff;
+      --muted:#b8c5e6;
+      --brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --brand-solid: #667eea;
+      --ok:#10b981;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --border:rgba(255,255,255,.12);
+      --shadow: 0 20px 60px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.2);
+      --radius:16px;
+      --radius2:24px;
+      --max:1200px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans KR, Arial;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      letter-spacing:-0.01em;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:0 auto;padding:22px 18px 70px}
+    header{
+      display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+      padding:20px 24px;border:1px solid var(--panel-border);border-radius:var(--radius2);
+      background:var(--panel);backdrop-filter: blur(20px);box-shadow:var(--shadow);
+      margin-bottom:24px;
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:56px;height:56px;border-radius:16px;background:var(--brand);
+      box-shadow:0 12px 32px rgba(102, 126, 234, 0.4);
+      display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;
+      position:relative;overflow:hidden;
+    }
+    .logo::before{content:'👁️';position:relative;z-index:2}
+    .logo::after{
+      content:'';position:absolute;inset:0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+      animation: logoShine 3s infinite;
+    }
+    @keyframes logoShine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+      100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    }
+    .title h1{margin:0;font-size:28px;font-weight:800}
+    .title p{margin:4px 0 0;font-size:14px;color:var(--muted)}
+    nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .chip{
+      border:1px solid var(--border);background:var(--glass);
+      padding:12px 20px;border-radius:999px;font-size:14px;color:var(--muted);
+      transition:all .25s ease;font-weight:600;position:relative;overflow:hidden;
+    }
+    .chip:hover{transform:translateY(-2px);border-color:var(--brand-solid);color:var(--text);box-shadow:0 8px 32px rgba(102,126,234,.25);background:rgba(102,126,234,.10)}
+    .chip.active{border-color:var(--brand-solid);color:var(--text);background:var(--brand);box-shadow:0 8px 32px rgba(102,126,234,.35)}
+    .panel{
+      border:1px solid var(--panel-border);border-radius:var(--radius2);
+      background:var(--panel);backdrop-filter: blur(20px);box-shadow:var(--shadow);overflow:hidden;
+    }
+    .panel .hd{padding:14px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .panel .hd h2{margin:0;font-size:18px;font-weight:800}
+    .panel .hd small{color:var(--muted)}
+    .panel .bd{padding:14px}
+    .grid{display:grid;gap:14px;margin-top:16px;grid-template-columns:1.4fr .8fr}
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .search{
+      flex:1;min-width:210px;display:flex;gap:10px;align-items:center;
+      padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.15);
+    }
+    .search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:14px}
+    .seg{display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:rgba(0,0,0,.12)}
+    .seg button{border:0;background:transparent;color:var(--muted);padding:9px 12px;font-size:13px;cursor:pointer}
+    .seg button.active{background: rgba(122,162,255,.16); color: var(--text)}
+    .scenario-btn{border:0;background:transparent;color:var(--muted);padding:9px 12px;font-size:13px;cursor:pointer}
+    .scenario-btn.active{background: rgba(122,162,255,.16); color: var(--text)}
+    .cards{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media (max-width: 620px){ .cards{grid-template-columns:1fr} }
+    .card{
+      border:1px solid var(--border);border-radius:var(--radius);background:rgba(0,0,0,.16);
+      padding:12px;display:flex;gap:12px;align-items:flex-start;transition:transform .12s ease,border-color .12s ease;
+    }
+    .card:hover{transform:translateY(-2px);border-color:rgba(122,162,255,.45)}
+    .avatar{
+      width:48px;height:48px;border-radius:16px;overflow:hidden;flex:0 0 auto;
+      background:rgba(255,255,255,.08);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;font-weight:800;
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .meta h3{margin:0;font-size:14px}
+    .meta p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+    .pillrow{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .pill{font-size:11px;padding:6px 9px;border-radius:999px;border:1px solid var(--border);color:var(--muted);background:rgba(255,255,255,.05)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{
+      border:1px solid var(--border);border-radius:var(--radius);background:rgba(0,0,0,.16);
+      padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      transition:transform .12s ease,border-color .12s ease;
+    }
+    .item:hover{transform:translateY(-2px);border-color:rgba(96,211,148,.45)}
+    .left{display:flex;flex-direction:column;gap:4px;min-width:0}
+    .sym{font-weight:900}
+    .name{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tag{font-size:11px;padding:6px 9px;border-radius:999px;border:1px solid var(--border);color:var(--muted);background:rgba(255,255,255,.05);white-space:nowrap}
+    .btn{
+      border:1px solid var(--border);background:var(--glass);padding:12px 18px;border-radius:var(--radius);
+      font-size:14px;cursor:pointer;color:var(--text);transition:all .25s ease;font-weight:700;
+    }
+    .btn:hover{border-color:var(--brand-solid);background:rgba(102,126,234,0.12);transform:translateY(-2px);box-shadow:0 8px 24px rgba(102,126,234,.2)}
+    .crumb{color:var(--muted);font-size:12px}
+
+    /* Hero */
+    .hero-section{text-align:center;padding:54px 0 44px}
+    .hero-title{
+      font-size:54px;font-weight:900;margin:0 0 18px;
+      background:var(--brand);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+      line-height:1.15;
+    }
+    @media (max-width: 700px){ .hero-title{font-size:40px} }
+    .hero-subtitle{font-size:18px;color:var(--muted);margin:0;line-height:1.6}
+
+    /* Investors showcase */
+    .section-header{text-align:center;margin:0 0 24px}
+    .section-header h2{font-size:34px;font-weight:900;margin:0 0 10px}
+    .section-header p{font-size:16px;color:var(--muted);margin:0}
+    .investors-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+    .investor-card{
+      position:relative;overflow:hidden;border:1px solid var(--panel-border);border-radius:var(--radius2);
+      background:var(--panel);backdrop-filter:blur(20px);padding:20px;transition:all .25s ease;box-shadow:var(--shadow);
+    }
+    .investor-card:hover{transform:translateY(-8px);border-color:var(--brand-solid);box-shadow:0 32px 80px rgba(0,0,0,.5)}
+    .investor-avatar{
+      width:240px;height:280px;margin:0 auto 16px;border-radius:var(--radius);overflow:hidden;
+      border:3px solid var(--brand-solid);box-shadow:0 16px 56px rgba(102,126,234,0.35);
+      display:flex;align-items:center;justify-content:center;
+      background: linear-gradient(135deg, rgba(122,162,255,.35), rgba(96,211,148,.18));
+      font-weight:900;font-size:22px;
+    }
+    .investor-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .investor-info h3{text-align:center;font-size:22px;margin:0 0 10px;font-weight:900}
+    .investor-quote{text-align:center;font-size:14px;color:var(--muted);font-style:italic;margin:0 0 10px;line-height:1.5}
+    .investor-summary{text-align:center;font-size:15px;margin:0 0 14px;line-height:1.6}
+    .investor-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+    .investor-tags .tag{background:rgba(102,126,234,0.18);color:#cfd8ff;border-color:rgba(102,126,234,0.25)}
+    .card-overlay{
+      position:absolute;bottom:0;left:0;right:0;background:var(--brand);
+      padding:10px;text-align:center;font-weight:900;font-size:13px;opacity:0;transition:all .25s ease;
+    }
+    .investor-card:hover .card-overlay{opacity:1}
+
+    /* Asset cards */
+    .assets-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    .asset-card{
+      border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);
+      padding:18px;transition:all .25s ease;backdrop-filter:blur(20px);
+    }
+    .asset-card:hover{transform:translateY(-4px);border-color:var(--ok)}
+    .asset-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .asset-symbol{font-size:16px;font-weight:900}
+    .asset-type{font-size:10px;padding:4px 8px;border-radius:8px;font-weight:900}
+    .asset-type.stock{background:rgba(16,185,129,0.2);color:var(--ok)}
+    .asset-type.etf{background:rgba(102,126,234,0.2);color:#cfd8ff}
+    .asset-name{font-size:13px;color:var(--muted);margin-bottom:10px}
+    .asset-price .price{font-size:18px;font-weight:900;margin-right:10px}
+    .asset-price .change{font-size:12px;padding:4px 6px;border-radius:6px}
+    .positive{background:rgba(96,211,148,.2);color:var(--ok)}
+    .negative{background:rgba(255,107,107,.2);color:var(--bad)}
+
+    /* Asset detail */
+    .stockHeader{
+      background: linear-gradient(135deg, rgba(122,162,255,.15), rgba(96,211,148,.10));
+      border:1px solid var(--border);border-radius:var(--radius2);padding:16px;margin-bottom:16px;
+    }
+    .priceRow{display:flex;gap:16px;align-items:baseline;margin:12px 0;flex-wrap:wrap}
+    .mainPrice{font-size:36px;font-weight:900}
+    .priceChange{font-size:14px;padding:4px 8px;border-radius:8px}
+    .metrics{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:12px}
+    .metric{text-align:center;padding:8px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid var(--border)}
+    .metric .value{font-weight:900;font-size:15px}
+    .metric .label{font-size:11px;color:var(--muted);margin-top:2px}
+    .compactPanel{border:1px solid var(--border);border-radius:var(--radius);background:rgba(0,0,0,.16);padding:12px;margin-bottom:12px}
+    .investorMini{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    .investorMini .avatar{width:32px;height:32px;border-radius:12px}
+    .investorMini h3{margin:0;font-size:13px}
+    .investorMini .verdict{font-size:11px;color:var(--muted)}
+    .bullets{margin:8px 0;padding-left:16px}
+    .bullets li{margin:4px 0;font-size:12px;line-height:1.4}
+
+    /* Investor page layout */
+    .investor-layout{display:grid;gap:18px;grid-template-columns:1.5fr 1fr}
+    @media (max-width: 1000px){ .investor-layout{grid-template-columns:1fr} }
+    .philosophy-section{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    .philosophy-section h3{margin:0 0 10px;font-size:16px;font-weight:900}
+    .philosophy-list{margin:0;padding-left:18px;line-height:1.65;color:var(--muted);font-size:13px}
+    .analysis-section{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius);padding:16px;min-height:280px}
+    .analysis-placeholder{text-align:center;padding:28px 10px;color:var(--muted)}
+    .analysis-verdict{margin-top:8px;font-weight:900}
+    .asset-tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab-btn{padding:8px 14px;border:1px solid var(--border);background:rgba(255,255,255,0.05);border-radius:var(--radius);color:var(--muted);cursor:pointer;font-weight:800}
+    .tab-btn.active{background:var(--brand);color:white;border-color:var(--brand-solid)}
+    .clickable-item{cursor:pointer}
+    .clickable-item.selected{background:rgba(102,126,234,0.2);border-color:var(--brand-solid)}
+    .note{
+      border:1px dashed rgba(255,255,255,.18);border-radius:var(--radius);padding:12px;background:rgba(255,255,255,.04);
+      color:var(--muted);font-size:12px;line-height:1.5;
+    }
+
+    footer{margin-top:18px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;opacity:.9}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#/">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Investor Lens</h1>
+          <p>투자 거물 관점으로 종목/ETF를 분석하는 개인 위키</p>
+        </div>
+      </a>
+      <nav>
+        <a class="chip" data-link href="#/">홈</a>
+        <a class="chip" data-link href="#/investors">투자자</a>
+        <a class="chip" data-link href="#/assets">종목 · ETF</a>
+        <a class="chip" data-link href="#/about">About</a>
+      </nav>
+    </header>
+
+    <main id="app"></main>
+
+    <footer>
+      <div>© <span id="year"></span> Investor Lens · Built for GitHub Pages</div>
+      <div class="mono">Routing: hash (#/)</div>
+    </footer>
+  </div>
+
+<script>
+/** =========================
+ * DATA (여기만 바꿔도 확장 가능)
+ * ========================= */
+const INVESTORS = [
+  {
+    id: "buffett",
+    name: "워렌 버핏",
+    img: "assets/img/buffett.jpg",
+    summary: "‘좋은 회사’를 ‘안전마진’ 있는 가격에 사서 오래 들고 간다.",
+    quote: "Rule No.1: Never lose money. Rule No.2: Never forget rule No.1.",
+    oneLiner: "훌륭한 회사를 적정/할인가에, 길게.",
+    philosophy: [
+      "이 회사가 10년 후에도 독점적 지위를 유지할 수 있을까? (해자)",
+      "현금흐름이 예측 가능하고 안정적인가?",
+      "현재 가격에 충분한 안전마진이 있는가?",
+      "경영진이 주주가치를 중시하고 자본배분을 잘하는가?",
+      "이해하기 쉬운 비즈니스 모델인가?"
+    ],
+    styleTags: ["퀄리티", "현금흐름", "안전마진", "장기보유"]
+  },
+  {
+    id: "lynch",
+    name: "피터 린치",
+    img: "assets/img/lynch.jpg",
+    summary: "성장 스토리를 ‘숫자’로 확인하고, 유형을 나눠서 투자한다.",
+    quote: "Know what you own, and know why you own it.",
+    oneLiner: "성장 스토리를 숫자로 확인하고, 분류해서 산다.",
+    philosophy: [
+      "이 회사는 어떤 성장 유형인가? (Fast grower, Cyclical, Stalwart)",
+      "성장 스토리가 실제 숫자(매출, 이익)로 뒷받침되는가?",
+      "시장에서 과도하게 주목받아 가격이 앞서가지 않았나?",
+      "업계와 회사를 충분히 이해하고 있는가?",
+      "장기 성장 가능성과 현재 밸류에이션의 균형은?"
+    ],
+    styleTags: ["성장주", "스토리+숫자", "분류", "현장감"]
+  },
+  {
+    id: "munger",
+    name: "찰리 멍거",
+    img: "assets/img/munger.jpg",
+    summary: "질이 압도적인 기업을 ‘기다렸다가’ 크게 산다.",
+    quote: "Try to be consistently not stupid.",
+    oneLiner: "질이 압도적이면, 기다렸다가 크게 건다.",
+    philosophy: [
+      "내 능력 범위(Circle of Competence) 안의 투자인가?",
+      "경쟁우위가 구조적이고 지속가능한가?",
+      "실수를 피하는 것이 성공보다 중요하다",
+      "품질이 압도적으로 좋다면 적정가격을 지불할 수 있다",
+      "복리의 힘을 활용할 만큼 오래 보유할 수 있나?"
+    ],
+    styleTags: ["퀄리티", "기다림", "리스크회피", "해자"]
+  },
+  {
+    id: "fisher",
+    name: "필립 피셔",
+    img: "assets/img/fisher.jpg",
+    summary: "기술/제품 리더십과 장기 성장시장을 보고 오래 모은다.",
+    quote: "Price is what you pay. Value is what you get.",
+    oneLiner: "기술/제품이 산업을 바꾸면, 길게 모은다.",
+    philosophy: [
+      "제품/기술이 업계 판도를 바꿀 혁신적인가?",
+      "R&D와 혁신 역량이 경쟁사를 압도하는가?",
+      "장기적으로 성장할 수 있는 큰 시장(TAM)이 있는가?",
+      "우수한 경영진과 기업문화를 갖췄는가?",
+      "단기 변동성보다 장기 성장에 집중할 수 있나?"
+    ],
+    styleTags: ["성장", "기술리더십", "장기", "퀄리티"]
+  },
+  {
+    id: "dalio",
+    name: "레이 달리오",
+    img: "assets/img/dalio.jpg",
+    summary: "거시 사이클과 분산을 기반으로 ‘비중’으로 리스크를 관리한다.",
+    quote: "He who lives by the crystal ball will eat shattered glass.",
+    oneLiner: "거시 사이클과 분산. 비중이 곧 리스크다.",
+    philosophy: [
+      "현재 경제/시장 사이클의 어느 단계에 있는가?",
+      "포트폴리오가 다양한 시나리오에 대비되어 있는가?",
+      "각 자산의 리스크-리턴 프로필을 정확히 파악했나?",
+      "비중 관리와 리밸런싱 규칙이 있는가?",
+      "감정이 아닌 원칙에 따라 투자하고 있는가?"
+    ],
+    styleTags: ["거시", "분산", "비중", "리스크관리"]
+  }
+];
+
+const ASSETS = [
+  // Stocks
+  {
+    id:"nvda", type:"stock", symbol:"NVDA", name:"NVIDIA Corporation",
+    sector:"반도체/AI 인프라",
+    why:"AI 컴퓨팅 플랫폼(칩+CUDA 생태계)",
+    description:"GPU와 AI 칩 분야의 글로벌 리더. 데이터센터/AI 인프라의 핵심.",
+    price: 138.07, change: -0.93, changePercent: -0.67,
+    marketCap:"3.39T", peRatio:52.1, revenue:"126.0B", netIncome:"73.0B", eps:2.95, dividend:0.04, beta:1.68,
+    lastUpdated:"예시 데이터", dataSource:"(샘플)"
+  },
+  {
+    id:"tsla", type:"stock", symbol:"TSLA", name:"Tesla, Inc.",
+    sector:"EV/로보틱스",
+    why:"제조+소프트웨어+자율주행 옵션",
+    description:"전기차/에너지/자율주행/로보틱스 확장.",
+    price: 479.86, change: +8.35, changePercent: 1.77,
+    marketCap:"1.53T", peRatio:88.4, revenue:"96.8B", netIncome:"15.0B", eps:5.43, dividend:0.00, beta:2.29,
+    lastUpdated:"예시 데이터", dataSource:"(샘플)"
+  },
+  {
+    id:"googl", type:"stock", symbol:"GOOGL", name:"Alphabet Inc.",
+    sector:"플랫폼/클라우드/AI",
+    why:"광고 캐시카우 + 클라우드 + AI",
+    description:"검색/유튜브/안드로이드/클라우드 기반의 거대 플랫폼.",
+    price: 186.37, change: +2.08, changePercent: 1.13,
+    marketCap:"2.28T", peRatio:24.8, revenue:"330.8B", netIncome:"94.7B", eps:7.52, dividend:0.00, beta:1.05,
+    lastUpdated:"예시 데이터", dataSource:"(샘플)"
+  },
+  {
+    id:"pltr", type:"stock", symbol:"PLTR", name:"Palantir Technologies",
+    sector:"데이터/국방/AI",
+    why:"정부/엔터프라이즈 데이터 플랫폼",
+    description:"정부기관/기업 대상 데이터 분석·의사결정 플랫폼.",
+    price: 75.19, change: +1.74, changePercent: 2.37,
+    marketCap:"180.5B", peRatio:312.5, revenue:"2.6B", netIncome:"0.47B", eps:0.24, dividend:0.00, beta:2.44,
+    lastUpdated:"예시 데이터", dataSource:"(샘플)"
+  },
+
+  // ETFs
+  {
+    id:"qqqm", type:"etf", symbol:"QQQM", name:"Invesco NASDAQ 100 ETF",
+    sector:"대형 성장주",
+    why:"나스닥100(장기용 QQQ)",
+    description:"나스닥 100 지수 추종 ETF(대형 기술주 중심).",
+    price: 209.45, change: +1.23, changePercent: 0.59,
+    expenseRatio:"0.05%", aum:"15.2B", dividend:"0.52%", inception:"2020"
+  },
+  {
+    id:"smh", type:"etf", symbol:"SMH", name:"VanEck Semiconductor ETF",
+    sector:"반도체",
+    why:"반도체 산업 집중 베팅",
+    description:"반도체 업계 대표 종목들로 구성된 ETF.",
+    price: 225.80, change: +3.45, changePercent: 1.55,
+    expenseRatio:"0.35%", aum:"12.8B", dividend:"1.1%", inception:"1999"
+  },
+  {
+    id:"voo", type:"etf", symbol:"VOO", name:"Vanguard S&P 500 ETF",
+    sector:"미국 대형주",
+    why:"미국 시장 기본값(분산)",
+    description:"S&P 500 지수 추종 ETF.",
+    price: 542.15, change: +2.10, changePercent: 0.39,
+    expenseRatio:"0.03%", aum:"1.3T", dividend:"1.3%", inception:"2010"
+  }
+];
+
+/** 투자자별 × 자산별 관점 템플릿 */
+const LENS = {
+  buffett: {
+    stock: (a) => {
+      const map = {
+        nvda: {
+          verdict:"🟡 신중 관망 - 가격이 문제",
+          bullets:[
+            "해자(CUDA 생태계)는 강하지만 사이클/경쟁 변수 존재",
+            "밸류에이션이 높으면 ‘좋은 회사’라도 수익률이 깎일 수 있음",
+            "현금흐름 예측 불확실 구간에서는 보수적으로 접근"
+          ],
+          checklist:[
+            "가격이 안전마진을 주는가?",
+            "AI 수요가 구조적 성장인가?",
+            "경쟁/대체재가 해자를 약화시키는가?",
+            "사이클 하락에도 마진 유지 가능한가?"
+          ],
+          howToUse:"좋은 기업이라도 ‘가격’이 핵심. 조정으로 밸류가 내려오면 검토."
+        },
+        tsla:{
+          verdict:"🔴 제외 - 예측 어려움",
+          bullets:["자동차는 자본집약/경쟁 심화","스토리 프리미엄이 커서 안전마진 확보 어려움","리더 개인 리스크"],
+          checklist:["현금흐름 안정성","규제/자율주행 상용화","경쟁사 EV 전환 속도","가격이 안전마진 주는가?"],
+          howToUse:"능력 범위 밖이면 과감히 패스."
+        },
+        googl:{
+          verdict:"🟢 매수 선호 - 해자+현금흐름",
+          bullets:["검색/유튜브 네트워크 효과","현금창출력 우수","밸류에이션이 과도하지 않다면 코어 후보"],
+          checklist:["규제 리스크","AI 검색 전환의 수익성","클라우드 수익성","자본배분(자사주 등)"],
+          howToUse:"버핏 스타일 ‘코어’ 후보. 장기 보유 관점."
+        },
+        pltr:{
+          verdict:"🔴 제외 - 모델 이해 난이도",
+          bullets:["비즈니스가 복잡하고 평가 기준이 애매","밸류에이션 부담","고객/계약 리스크"],
+          checklist:["지속가능한 해자","민간 확장성","계약 갱신률","가격 정당성"],
+          howToUse:"‘이해 못하면 투자 안 한다’ 원칙."
+        }
+      };
+      return map[a.id] || { verdict:"분석 준비중", bullets:["추가 데이터 필요"], checklist:["—"], howToUse:"—" };
+    },
+    etf: (a) => ({
+      verdict:"🟢 코어로 적합(특히 광범위 인덱스)",
+      bullets:["대부분 사람에게 인덱스 ETF가 최적","낮은 비용+분산+장기 적립","섹터 ETF는 비중 제한"],
+      checklist:["보수 낮은가?","편중/집중 리스크는?","장기 적립 가능한가?"],
+      howToUse:"VOO 같은 광범위 인덱스를 코어로, 테마는 위성으로."
+    })
+  },
+
+  lynch: {
+    stock: (a) => {
+      const map = {
+        nvda:{
+          verdict:"🟡 Fast Grower - 너무 유명해진 구간 주의",
+          bullets:["성장 스토리를 숫자로 검증(매출/이익)","이미 유명하면 기대치가 높다","분할매수/리스크 관리"],
+          checklist:["성장률 지속성","경쟁 추격","새 시장(TAM) 확장","사이클 하락耐성"],
+          howToUse:"‘스토리+숫자’가 계속 맞는지 분기마다 확인."
+        },
+        tsla:{
+          verdict:"🟡 Cyclical+Story - 변동성 극대",
+          bullets:["스토리가 크면 실적 검증이 더 중요","경쟁 심화/마진 추적","포지션 사이즈가 핵심"],
+          checklist:["인도량/마진","FSD 상용화","중국/유럽 경쟁","사업 다각화 실적"],
+          howToUse:"실적이 스토리를 ‘증명’할 때만 비중 확대."
+        },
+        googl:{
+          verdict:"🟢 Stalwart - 안정적 성장 + AI 옵션",
+          bullets:["캐시카우 기반","밸류가 무난하면 코어","성장률 둔화 체크"],
+          checklist:["검색 성장 둔화","AI 전환 비용","클라우드 성장","규제 리스크"],
+          howToUse:"린치식 ‘안정+옵션’ 조합의 대표."
+        },
+        pltr:{
+          verdict:"🔴 Story Stock - 증명 부족",
+          bullets:["스토리 대비 실적 약하면 위험","밸류 부담","고객 집중/정책 리스크"],
+          checklist:["고객 확대","매출 성장","마진/현금흐름","대체 가능성"],
+          howToUse:"‘스토리만 있는 주식’은 피한다."
+        }
+      };
+      return map[a.id] || { verdict:"분석 준비중", bullets:["추가 데이터 필요"], checklist:["—"], howToUse:"—" };
+    },
+    etf: (a) => ({
+      verdict:"🟢 성장 바스켓으로 유용",
+      bullets:["성장주 고르기 어렵다면 ETF로 분산","섹터 ETF는 변동성 큼","정액 적립으로 타이밍 리스크 완화"],
+      checklist:["구성 종목이 진짜 성장 산업인가?","변동성 감내 가능한가?","비용/추적오차"],
+      howToUse:"성장 ETF=‘성장주 묶음’으로 접근."
+    })
+  },
+
+  munger: {
+    stock: (a) => {
+      const map = {
+        nvda:{
+          verdict:"🟡 기다림 - 질은 좋지만 가격/이해도",
+          bullets:["해자는 강하지만 기술 변화가 빠름","이해할 때까지 기다림","가격이 안전마진 줄 때만"],
+          checklist:["능력 범위 안인가?","가격이 ‘완벽한 시나리오’를 반영했나?","대체재 위험","장기 우위 지속성"],
+          howToUse:"완전히 이해+좋은 가격, 둘 다 충족해야."
+        },
+        tsla:{
+          verdict:"🔴 회피 - 복잡성/불확실성",
+          bullets:["너무 많은 변수","리더 개인 리스크","평가 난이도"],
+          checklist:["사업 분해 평가 가능?","규제/금리 민감도","경쟁 환경","영구손실 가능성"],
+          howToUse:"‘너무 어려운 바구니’는 피한다."
+        },
+        googl:{
+          verdict:"🟢 강력 - 이해 가능한 해자",
+          bullets:["네트워크 효과/데이터/브랜드","현금창출력","실수 가능성 낮음"],
+          checklist:["규제 리스크","AI가 모델을 파괴하는가?","자본배분","클라우드 경쟁"],
+          howToUse:"확실성이 높으면 ‘집중’도 가능."
+        },
+        pltr:{
+          verdict:"🔴 이해 불가 - 제외",
+          bullets:["모델 설명이 어렵다","가격 정당성 낮음"],
+          checklist:["지속 가능한 경쟁우위","민간 확장성","정책 리스크","대체 가능성"],
+          howToUse:"이해 못하면 NO."
+        }
+      };
+      return map[a.id] || { verdict:"분석 준비중", bullets:["추가 데이터 필요"], checklist:["—"], howToUse:"—" };
+    },
+    etf: (a) => ({
+      verdict:"🟢 코어 인덱스 OK / 테마 제한",
+      bullets:["광범위 인덱스=실수 줄이기","테마는 소량 위성"],
+      checklist:["내 멘탈이 -40% 버티나?","비중 규칙이 있나?","리밸런싱 계획"],
+      howToUse:"원칙적으로 버틸 수 있는 구조로."
+    })
+  },
+
+  fisher: {
+    stock: (a) => {
+      const map = {
+        nvda:{
+          verdict:"🟢 기술 리더십 - 장기 보유",
+          bullets:["기술/제품 리더가 산업을 바꿈","R&D/생태계가 핵심","TAM 확장"],
+          checklist:["차세대 로드맵","생태계 락인","경쟁 격차","신시장 창출"],
+          howToUse:"기술 리더십이 유지되는지 주기적으로 확인."
+        },
+        tsla:{
+          verdict:"🟡 혁신적이나 경쟁/리더 리스크",
+          bullets:["초기 혁신은 인정","경쟁 심화","리더십 연속성"],
+          checklist:["FSD/배터리 혁신","원가경쟁력","시장점유율","현금흐름"],
+          howToUse:"혁신이 ‘숫자’로 증명되면 장기 비중."
+        },
+        googl:{
+          verdict:"🟢 혁신 포트폴리오 - 안정적",
+          bullets:["검색+클라우드+AI","데이터/인재 기반","신사업 옵션"],
+          checklist:["AI 전환 수익성","클라우드 경쟁력","규제","자본배분"],
+          howToUse:"‘지속적 혁신 기업’으로 접근."
+        },
+        pltr:{
+          verdict:"🔴 기술 우위 불명확 - 관망",
+          bullets:["기술 차별화 증거가 중요","확장성/수익화 검증 필요"],
+          checklist:["독창 기술 증거","민간 확장","경쟁사 대비","수익성"],
+          howToUse:"기술 우위가 명확해질 때까지 보류."
+        }
+      };
+      return map[a.id] || { verdict:"분석 준비중", bullets:["추가 데이터 필요"], checklist:["—"], howToUse:"—" };
+    },
+    etf: (a) => ({
+      verdict:"🟢 테마로 성장 베팅",
+      bullets:["섹터 ETF는 산업 성장에 베팅","구성 종목의 ‘질’이 중요"],
+      checklist:["리더 중심인가?","구조적 성장인가?","집중 리스크 감내?"],
+      howToUse:"코어는 분산, 테마는 위성."
+    })
+  },
+
+  dalio: {
+    stock: (a) => {
+      const map = {
+        nvda:{
+          verdict:"🟡 고위험-고수익 - 비중 제한",
+          bullets:["사이클+금리 민감","지정학/공급망 변수","포트폴리오 상관관리 필요"],
+          checklist:["기술주 편중인가?","경기침체 민감도","금리 사이클","리밸런싱 규칙"],
+          howToUse:"5–10% 같은 상한선을 정하고 리밸런싱."
+        },
+        tsla:{
+          verdict:"🔴 변동성 과다 - 안정성 해침",
+          bullets:["불확실성/상관 불안정","포트폴리오 리스크 증가"],
+          checklist:["거시 민감도","현금흐름 안정성","규제","상관구조 변화"],
+          howToUse:"달리오 스타일이면 코어에 두기 어려움."
+        },
+        googl:{
+          verdict:"🟢 균형 자산 - 코어 후보",
+          bullets:["현금/사업 다각화","상대적 안정+성장 옵션"],
+          checklist:["광고 경기 민감도","규제 영향","클라우드 수익성","상관 관리"],
+          howToUse:"코어로 두고 리밸런싱으로 과열/폭락 대응."
+        },
+        pltr:{
+          verdict:"🔴 투기적 - 위험관리 원칙 위배",
+          bullets:["현금흐름 예측 어려움","정책/계약 리스크"],
+          checklist:["고객 집중","정책 변화","수익성","포트폴리오 영향"],
+          howToUse:"리스크 예산(위험 한도) 밖이면 제외."
+        }
+      };
+      return map[a.id] || { verdict:"분석 준비중", bullets:["추가 데이터 필요"], checklist:["—"], howToUse:"—" };
+    },
+    etf: (a) => ({
+      verdict:"🟢 ETF는 분산 도구",
+      bullets:["VOO 같은 광범위 ETF로 코어 구축","집중 ETF는 비중 제한","정기 리밸런싱"],
+      checklist:["자산군 균형(현금/채권)","편중 여부","리밸런싱 규칙"],
+      howToUse:"코어-위성 + 리밸런싱이 핵심."
+    })
+  }
+};
+
+/* =========================
+ * ROUTER + UI
+ * ========================= */
+const $ = (sel, el=document)=>el.querySelector(sel);
+const $$ = (sel, el=document)=>Array.from(el.querySelectorAll(sel));
+
+function setActiveNav(){
+  const hash = location.hash || "#/";
+  $$("a[data-link]").forEach(a=>{
+    const href=a.getAttribute("href");
+    a.classList.toggle("active", hash.startsWith(href));
+  });
+}
+
+function parseQuery(){
+  const h = location.hash || "";
+  const idx = h.indexOf("?");
+  if (idx === -1) return {};
+  const qs = h.slice(idx+1);
+  const out = {};
+  qs.split("&").forEach(kv=>{
+    const [k,v]=kv.split("=");
+    if(!k) return;
+    out[decodeURIComponent(k)] = decodeURIComponent(v||"");
+  });
+  return out;
+}
+
+function imgOrPlaceholder(inv, size="small"){
+  const initials = (inv.name||"?").split(" ").map(n=>n[0]).join("");
+  if (size === "big"){
+    return `
+      <div class="investor-avatar">
+        <img src="${inv.img}" alt="${inv.name}" onerror="this.remove(); this.parentElement.textContent='${initials}'">
+      </div>
+    `;
+  }
+  return `
+    <div class="avatar">
+      <img src="${inv.img}" alt="${inv.name}" onerror="this.remove(); this.parentElement.textContent='${initials}'">
+    </div>
+  `;
+}
+
+function route(){
+  setActiveNav();
+  const app = $("#app");
+  const hashRaw = (location.hash || "#/").slice(2); // remove "#/"
+  const [pathPart] = hashRaw.split("?");
+  const seg = pathPart.split("/").filter(Boolean);
+  const path = seg[0] || "";
+  const id = seg[1];
+  const sub = seg[2];
+
+  if (!path) return renderHome(app);
+  if (path === "investors") return id ? renderInvestor(app, id) : renderInvestors(app);
+  if (path === "assets") return id ? (sub==="projection" ? renderProjection(app, id) : renderAsset(app, id)) : renderAssets(app);
+  if (path === "about") return renderAbout(app);
+
+  return renderNotFound(app);
+}
+
+/* =========================
+ * HOME
+ * ========================= */
+function renderHome(app){
+  const topAssets = ASSETS;
+  app.innerHTML = `
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">투자 거물들의 시각으로 보는<br>주식 분석</h1>
+        <p class="hero-subtitle">
+          워렌 버핏, 피터 린치, 찰리 멍거 등 전설적인 투자자들이<br>
+          같은 종목을 어떻게 해석하는지 비교해보세요
+        </p>
+      </div>
+    </section>
+
+    <section class="investors-showcase" style="margin-bottom:48px">
+      <div class="section-header">
+        <h2>투자 거물들의 관점</h2>
+        <p>클릭해서 각 투자자의 철학과 분석 방식을 확인하세요</p>
+      </div>
+
+      <div class="investors-grid">
+        ${INVESTORS.map(inv=>`
+          <a class="investor-card" href="#/investors/${inv.id}">
+            ${imgOrPlaceholder(inv,"big")}
+            <div class="investor-info">
+              <h3>${inv.name}</h3>
+              <p class="investor-quote">"${inv.quote}"</p>
+              <div class="investor-summary">${inv.oneLiner}</div>
+              <div class="investor-tags">
+                ${inv.styleTags.map(t=>`<span class="tag">${t}</span>`).join("")}
+              </div>
+            </div>
+            <div class="card-overlay"><span>분석 보기 →</span></div>
+          </a>
+        `).join("")}
+      </div>
+    </section>
+
+    <section class="panel" style="margin-bottom:48px">
+      <div class="hd">
+        <div>
+          <h2>종목 바로가기</h2>
+          <small>관심 종목을 선택해 5명의 투자자 관점을 한번에 비교하세요</small>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="assets-grid">
+          ${topAssets.map(a=>`
+            <a class="asset-card" href="#/assets/${a.id}">
+              <div class="asset-header">
+                <div class="asset-symbol">${a.symbol}</div>
+                <span class="asset-type ${a.type}">${a.type.toUpperCase()}</span>
+              </div>
+              <div class="asset-name">${a.name}</div>
+              <div class="asset-price">
+                <span class="price">$${a.price}</span>
+                <span class="change ${a.change >= 0 ? 'positive':'negative'}">
+                  ${a.change >= 0 ? '+' : ''}${a.change} (${a.changePercent >= 0 ? '+' : ''}${a.changePercent}%)
+                </span>
+              </div>
+              <div class="asset-name">왜 관심? ${a.why || "-"}</div>
+            </a>
+          `).join("")}
+        </div>
+
+        <div class="note" style="margin-top:14px">
+          * 현재 가격/지표는 샘플 데이터입니다. 나중에 실시간 연동(예: Cloudflare Worker/Serverless) 붙이면 자동 업데이트로 확장 가능합니다.
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="hd">
+        <h2>💡 사용 방법</h2>
+        <small>3스텝으로 끝</small>
+      </div>
+      <div class="bd">
+        <div class="cards">
+          <div class="card">
+            <div class="meta">
+              <h3>1) 투자자 선택</h3>
+              <p>먼저 철학(체크리스트)을 이해하면 종목 해석이 쉬워져요.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="meta">
+              <h3>2) 종목 비교</h3>
+              <p>같은 종목을 5명의 렌즈로 동시에 비교해요.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="meta">
+              <h3>3) 수익 시뮬레이션</h3>
+              <p>월 적립 기준으로 장기 복리 결과를 확인해요.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="meta">
+              <h3>+ 확장</h3>
+              <p>종목/투자자/렌즈는 DATA 영역만 늘리면 자동 확장됩니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* =========================
+ * INVESTORS LIST + DETAIL
+ * ========================= */
+function renderInvestors(app){
+  app.innerHTML = `
+    <section class="panel">
+      <div class="hd">
+        <div>
+          <h2>투자자</h2>
+          <small>철학/체크리스트를 먼저 고르면 종목 해석이 쉬워짐</small>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="cards">
+          ${INVESTORS.map(inv=>`
+            <a class="card" href="#/investors/${inv.id}">
+              ${imgOrPlaceholder(inv)}
+              <div class="meta">
+                <h3>${inv.name}</h3>
+                <p>${inv.oneLiner}</p>
+                <div class="pillrow">
+                  ${inv.styleTags.map(t=>`<span class="pill">${t}</span>`).join("")}
+                </div>
+              </div>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderInvestor(app, investorId){
+  const inv = INVESTORS.find(x=>x.id===investorId);
+  if (!inv) return renderNotFound(app);
+
+  const stocks = ASSETS.filter(a=>a.type==="stock");
+  const etfs = ASSETS.filter(a=>a.type==="etf");
+
+  app.innerHTML = `
+    <div class="row" style="margin-bottom:12px">
+      <span class="crumb">투자자 / ${inv.name}</span>
+      <a class="btn" href="#/investors">← 투자자 목록</a>
+      <a class="btn" href="#/assets">종목 · ETF 보기 →</a>
+    </div>
+
+    <section class="panel">
+      <div class="hd">
+        <div class="row">
+          ${imgOrPlaceholder(inv)}
+          <div>
+            <h2 style="margin:0">${inv.name}</h2>
+            <small>"${inv.quote}"</small>
+            <div style="margin-top:8px;color:var(--muted)">${inv.oneLiner}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bd">
+        <div class="investor-layout">
+          <div>
+            <div class="philosophy-section">
+              <h3>💡 ${inv.name}의 투자 철학</h3>
+              <ul class="philosophy-list">
+                ${(inv.philosophy||[]).map(x=>`<li>${x}</li>`).join("")}
+              </ul>
+            </div>
+
+            <div id="analysisResult" class="analysis-section" style="margin-top:14px">
+              <div class="analysis-placeholder">
+                <div style="font-size:40px;margin-bottom:10px">👆</div>
+                <h4 style="margin:0 0 8px;color:var(--text)">종목을 선택해주세요</h4>
+                <p style="margin:0">오른쪽에서 종목을 클릭하면<br>${inv.name} 관점 분석이 여기에 표시됩니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel" style="box-shadow:none">
+              <div class="hd">
+                <h2>종목 선택</h2>
+                <small>${inv.name}의 관점으로 분석하기</small>
+              </div>
+              <div class="bd">
+                <div class="asset-tabs">
+                  <button class="tab-btn active" data-type="stock">주식</button>
+                  <button class="tab-btn" data-type="etf">ETF</button>
+                </div>
+
+                <div class="list" style="margin-top:12px" id="assetList">
+                  ${stocks.map(a=>`
+                    <div class="item clickable-item" data-asset-id="${a.id}" data-type="stock">
+                      <div class="left">
+                        <div class="sym">${a.symbol}</div>
+                        <div class="name">${a.name} · ${a.sector}</div>
+                      </div>
+                      <span class="tag">STOCK</span>
+                    </div>
+                  `).join("")}
+                </div>
+
+                <div class="note" style="margin-top:12px">
+                  팁: 특정 종목을 전체 비교 페이지로 보고 싶으면 아래 버튼을 눌러도 돼요.
+                  <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+                    <a class="btn" href="#/assets/googl?focus=${inv.id}">GOOGL 비교로 이동</a>
+                    <a class="btn" href="#/assets/nvda?focus=${inv.id}">NVDA 비교로 이동</a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  setTimeout(()=>setupInvestorPageEvents(inv), 50);
+}
+
+function setupInvestorPageEvents(investor){
+  $$(".tab-btn").forEach(btn=>{
+    btn.onclick = ()=>{
+      $$(".tab-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      updateAssetList(btn.dataset.type, investor);
+    };
+  });
+
+  $$(".clickable-item").forEach(item=>{
+    item.onclick = ()=>{
+      $$(".clickable-item").forEach(i=>i.classList.remove("selected"));
+      item.classList.add("selected");
+      showAssetAnalysis(item.dataset.assetId, investor);
+    };
+  });
+}
+
+function updateAssetList(type, investor){
+  const assetList = $("#assetList");
+  const assets = type==="stock" ? ASSETS.filter(a=>a.type==="stock") : ASSETS.filter(a=>a.type==="etf");
+  assetList.innerHTML = assets.map(a=>`
+    <div class="item clickable-item" data-asset-id="${a.id}" data-type="${type}">
+      <div class="left">
+        <div class="sym">${a.symbol}</div>
+        <div class="name">${a.name} · ${a.sector}</div>
+      </div>
+      <span class="tag">${type.toUpperCase()}</span>
+    </div>
+  `).join("");
+
+  $$(".clickable-item").forEach(item=>{
+    item.onclick = ()=>{
+      $$(".clickable-item").forEach(i=>i.classList.remove("selected"));
+      item.classList.add("selected");
+      showAssetAnalysis(item.dataset.assetId, investor);
+    };
+  });
+}
+
+function showAssetAnalysis(assetId, investor){
+  const asset = ASSETS.find(a=>a.id===assetId);
+  const analysisResult = $("#analysisResult");
+  if (!asset) return;
+
+  const fn = LENS[investor.id]?.[asset.type];
+  const analysis = fn ? fn(asset) : null;
+
+  if (!analysis){
+    analysisResult.innerHTML = `
+      <div class="analysis-placeholder">
+        <h4 style="margin:0 0 8px">분석 데이터 없음</h4>
+        <p style="margin:0">죄송합니다. ${asset.symbol}에 대한 ${investor.name}의 분석이 아직 준비되지 않았습니다.</p>
+      </div>
+    `;
+    return;
+  }
+
+  analysisResult.innerHTML = `
+    <div class="analysis-content">
+      <div class="analysis-header">
+        <h3 style="margin:0">${asset.symbol} · ${asset.name}</h3>
+        <div class="analysis-verdict">${analysis.verdict}</div>
+      </div>
+
+      <div class="analysis-body" style="margin-top:12px">
+        <h4 style="margin:0 0 8px">💡 ${investor.name}의 핵심 관점</h4>
+        <ul style="margin:0;padding-left:20px;line-height:1.6">
+          ${analysis.bullets.map(x=>`<li style="margin:6px 0;color:var(--muted)">${x}</li>`).join("")}
+        </ul>
+
+        <h4 style="margin:18px 0 8px">✓ 체크리스트</h4>
+        <ul style="margin:0;padding-left:20px;line-height:1.6">
+          ${analysis.checklist.map(x=>`<li style="margin:6px 0;color:var(--muted)">${x}</li>`).join("")}
+        </ul>
+
+        <div style="margin-top:18px;padding:14px;background:rgba(255,255,255,0.05);border-radius:var(--radius);border-left:4px solid var(--brand-solid)">
+          <h5 style="margin:0 0 8px;color:var(--brand-solid)">💡 활용법</h5>
+          <p style="margin:0;color:var(--muted);line-height:1.5">${analysis.howToUse}</p>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <a href="#/assets/${assetId}?focus=${investor.id}" class="btn">전체 비교 보기</a>
+          <a href="#/assets/${assetId}/projection" class="btn">📊 수익 시뮬레이션</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================
+ * ASSETS LIST + DETAIL
+ * ========================= */
+function renderAssets(app){
+  app.innerHTML = `
+    <section class="panel">
+      <div class="hd">
+        <div>
+          <h2>종목 · ETF</h2>
+          <small>검색 + (주식/ETF) 필터 후 클릭</small>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="row" style="margin-bottom:12px">
+          <div class="search">🔎 <input id="q" placeholder="예: NVDA, SMH, QQQM, Tesla..." /></div>
+          <div class="seg" role="tablist" aria-label="필터">
+            <button id="fAll" class="active" type="button">전체</button>
+            <button id="fStock" type="button">주식</button>
+            <button id="fEtf" type="button">ETF</button>
+          </div>
+        </div>
+        <div id="assetList" class="list"></div>
+      </div>
+    </section>
+  `;
+
+  const q = $("#q");
+  const list = $("#assetList");
+  let filter = "all";
+
+  const render = ()=>{
+    const term = (q.value||"").trim().toLowerCase();
+    let items = ASSETS.slice();
+    if (filter==="stock") items = items.filter(x=>x.type==="stock");
+    if (filter==="etf") items = items.filter(x=>x.type==="etf");
+    if (term){
+      items = items.filter(x=>
+        (x.symbol||"").toLowerCase().includes(term) ||
+        (x.name||"").toLowerCase().includes(term) ||
+        (x.sector||"").toLowerCase().includes(term)
+      );
+    }
+    list.innerHTML = items.map(a=>`
+      <a class="item" href="#/assets/${a.id}">
+        <div class="left">
+          <div class="sym">${a.symbol} <span class="tag" style="margin-left:8px">${a.type.toUpperCase()}</span></div>
+          <div class="name">${a.name} · ${a.sector}</div>
+          <div class="name">왜 관심? ${a.why || "-"}</div>
+        </div>
+        <span class="tag">보기 →</span>
+      </a>
+    `).join("") || `<div class="note">검색 결과가 없어. 다른 키워드로 해봐.</div>`;
+  };
+
+  const setFilter = (f)=>{
+    filter = f;
+    $("#fAll").classList.toggle("active", f==="all");
+    $("#fStock").classList.toggle("active", f==="stock");
+    $("#fEtf").classList.toggle("active", f==="etf");
+    render();
+  };
+
+  $("#fAll").onclick = ()=>setFilter("all");
+  $("#fStock").onclick = ()=>setFilter("stock");
+  $("#fEtf").onclick = ()=>setFilter("etf");
+  q.oninput = render;
+
+  render();
+}
+
+function renderAsset(app, assetId){
+  const a = ASSETS.find(x=>x.id===assetId);
+  if (!a) return renderNotFound(app);
+
+  const q = parseQuery();
+  const focusInvestor = q.focus && INVESTORS.some(x=>x.id===q.focus) ? q.focus : null;
+
+  const lensBlocks = INVESTORS.map(inv=>{
+    const fn = LENS[inv.id]?.[a.type];
+    const view = fn ? fn(a) : null;
+    if (!view) return "";
+    const isFocus = focusInvestor ? inv.id===focusInvestor : false;
+
+    return `
+      <div class="compactPanel" style="border-color:${isFocus ? "rgba(122,162,255,.55)" : "var(--border)"}">
+        <div class="investorMini">
+          ${imgOrPlaceholder(inv)}
+          <div>
+            <h3>${inv.name}</h3>
+            <div class="verdict">${view.verdict}</div>
+          </div>
+        </div>
+
+        <h4 style="margin:8px 0 4px;font-size:12px">💡 핵심 관점</h4>
+        <ul class="bullets">
+          ${view.bullets.slice(0,3).map(x=>`<li>${x}</li>`).join("")}
+        </ul>
+
+        <details style="margin-top:8px">
+          <summary style="font-size:11px;color:var(--muted);cursor:pointer">체크리스트 보기</summary>
+          <ul class="bullets" style="margin-top:6px">
+            ${view.checklist.slice(0,4).map(x=>`<li>${x}</li>`).join("")}
+          </ul>
+        </details>
+
+        <div style="margin-top:10px">
+          <div class="note" style="border-style:solid;border-color:rgba(102,126,234,0.2);background:rgba(102,126,234,0.05)">
+            <b>활용법:</b> ${view.howToUse}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const isStock = a.type === "stock";
+
+  app.innerHTML = `
+    <div class="row" style="margin-bottom:12px">
+      <span class="crumb">종목 · ETF / ${a.symbol}</span>
+      <a class="btn" href="#/assets">← 목록</a>
+      <a class="btn" href="#/assets/${a.id}/projection">📊 수익 시뮬레이션</a>
+      <a class="btn" href="#/investors">투자자별 보기 →</a>
+    </div>
+
+    <div class="stockHeader">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div>
+          <h1 style="margin:0;font-size:24px">${a.symbol}</h1>
+          <h2 style="margin:4px 0 0;font-size:16px;color:var(--muted)">${a.name}</h2>
+          <p style="margin:8px 0 0;color:var(--muted);font-size:13px">${a.description}</p>
+        </div>
+        <span class="tag" style="font-size:12px;align-self:flex-start">${a.type.toUpperCase()}</span>
+      </div>
+
+      <div class="priceRow">
+        <div class="mainPrice">$${a.price}</div>
+        <div class="priceChange ${a.change >= 0 ? 'positive':'negative'}">
+          ${a.change >= 0 ? '+' : ''}${a.change} (${a.changePercent >= 0 ? '+' : ''}${a.changePercent}%)
+        </div>
+      </div>
+
+      <div class="metrics">
+        ${isStock ? `
+          <div class="metric"><div class="value">$${a.marketCap}</div><div class="label">시가총액</div></div>
+          <div class="metric"><div class="value">${a.peRatio}</div><div class="label">P/E</div></div>
+          <div class="metric"><div class="value">$${a.revenue}</div><div class="label">매출</div></div>
+          <div class="metric"><div class="value">$${a.netIncome}</div><div class="label">순이익</div></div>
+          <div class="metric"><div class="value">$${a.eps}</div><div class="label">EPS</div></div>
+          <div class="metric"><div class="value">${a.beta}</div><div class="label">베타</div></div>
+        ` : `
+          <div class="metric"><div class="value">${a.expenseRatio}</div><div class="label">보수</div></div>
+          <div class="metric"><div class="value">$${a.aum}</div><div class="label">운용자산</div></div>
+          <div class="metric"><div class="value">${a.dividend}</div><div class="label">배당수익률</div></div>
+          <div class="metric"><div class="value">${a.inception}</div><div class="label">설정연도</div></div>
+        `}
+      </div>
+
+      ${isStock && a.lastUpdated ? `
+        <div style="margin-top:10px">
+          <small style="color:var(--muted);font-size:11px">📌 ${a.lastUpdated} | 출처: ${a.dataSource}</small>
+        </div>
+      ` : ``}
+    </div>
+
+    <section class="panel">
+      <div class="hd">
+        <h2>📈 투자자별 분석</h2>
+        <small>같은 자산을 다른 렌즈로 비교 ${focusInvestor ? ` · <b>${INVESTORS.find(x=>x.id===focusInvestor)?.name}</b> 강조중` : ""}</small>
+      </div>
+      <div class="bd">
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+            ${lensBlocks}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* =========================
+ * PROJECTION (DCA)
+ * ========================= */
+const PROJECTION_YEARS = [10,20,30,40,50];
+
+function getAssetScenarios(assetId){
+  const map = {
+    nvda: [
+      { name:"보수적", growth:0.12, label:"연 12% 수익" },
+      { name:"보통", growth:0.18, label:"연 18% 수익" },
+      { name:"낙관적", growth:0.25, label:"연 25% 수익" }
+    ],
+    tsla: [
+      { name:"보수적", growth:0.10, label:"연 10% 수익" },
+      { name:"보통", growth:0.16, label:"연 16% 수익" },
+      { name:"낙관적", growth:0.22, label:"연 22% 수익" }
+    ],
+    pltr: [
+      { name:"보수적", growth:0.08, label:"연 8% 수익" },
+      { name:"보통", growth:0.15, label:"연 15% 수익" },
+      { name:"낙관적", growth:0.20, label:"연 20% 수익" }
+    ],
+    googl: [
+      { name:"보수적", growth:0.08, label:"연 8% 수익" },
+      { name:"보통", growth:0.12, label:"연 12% 수익" },
+      { name:"낙관적", growth:0.16, label:"연 16% 수익" }
+    ],
+    qqqm: [
+      { name:"보수적", growth:0.08, label:"연 8% 수익" },
+      { name:"보통", growth:0.11, label:"연 11% 수익" },
+      { name:"낙관적", growth:0.14, label:"연 14% 수익" }
+    ],
+    smh: [
+      { name:"보수적", growth:0.09, label:"연 9% 수익" },
+      { name:"보통", growth:0.13, label:"연 13% 수익" },
+      { name:"낙관적", growth:0.17, label:"연 17% 수익" }
+    ],
+    voo: [
+      { name:"보수적", growth:0.07, label:"연 7% 수익" },
+      { name:"보통", growth:0.10, label:"연 10% 수익" },
+      { name:"낙관적", growth:0.13, label:"연 13% 수익" }
+    ]
+  };
+  return map[assetId] || [
+    { name:"보수적", growth:0.07, label:"연 7% 수익" },
+    { name:"보통", growth:0.10, label:"연 10% 수익" },
+    { name:"낙관적", growth:0.15, label:"연 15% 수익" }
+  ];
+}
+
+function renderProjection(app, assetId){
+  const a = ASSETS.find(x=>x.id===assetId);
+  if (!a) return renderNotFound(app);
+
+  const scenarios = getAssetScenarios(assetId);
+
+  app.innerHTML = `
+    <div class="row" style="margin-bottom:12px">
+      <span class="crumb">종목 · ETF / ${a.symbol} / 수익 시뮬레이션</span>
+      <a class="btn" href="#/assets/${a.id}">← ${a.symbol} 분석</a>
+      <a class="btn" href="#/assets">목록으로</a>
+    </div>
+
+    <section class="panel">
+      <div class="hd">
+        <h2>📊 ${a.symbol} 장기 수익 시뮬레이션</h2>
+        <small>현재가 $${a.price} 기준 · 적립식(DCA) 복리 계산</small>
+      </div>
+
+      <div class="bd">
+        <div class="note" style="margin-bottom:16px">
+          💡 <b>가정:</b> 매월 일정 금액을 적립식으로 투자(DCA). 실제 수익률은 달라질 수 있어요.
+        </div>
+
+        <div class="row" style="margin-bottom:16px">
+          <div class="search" style="max-width:220px">
+            💰 <input id="monthlyAmount" type="number" value="1000" min="100" step="100" style="text-align:right" />
+          </div>
+          <div class="seg">
+            <button class="scenario-btn active" data-i="0">${scenarios[0].name} ${Math.round(scenarios[0].growth*100)}%</button>
+            <button class="scenario-btn" data-i="1">${scenarios[1].name} ${Math.round(scenarios[1].growth*100)}%</button>
+            <button class="scenario-btn" data-i="2">${scenarios[2].name} ${Math.round(scenarios[2].growth*100)}%</button>
+          </div>
+        </div>
+
+        <div id="projectionResults"></div>
+
+        <canvas id="projectionChart" width="800" height="220"
+          style="margin-top:16px;width:100%;height:220px;max-height:220px;border:1px solid var(--border);border-radius:10px;"></canvas>
+
+        <div class="note" style="margin-top:16px">
+          <b>해석 팁</b><br/>
+          - 같은 성장률이라도 <b>기간</b>이 길수록 복리 효과가 커져요.<br/>
+          - 고성장 시나리오는 변동성이 크므로 <b>심리/비중</b>이 성패를 갈라요.
+        </div>
+      </div>
+    </section>
+  `;
+
+  let currentScenario = 0;
+
+  function updateProjection(){
+    const monthlyAmount = parseFloat($("#monthlyAmount").value) || 1000;
+    const scenario = scenarios[currentScenario];
+    const monthlyRate = scenario.growth / 12;
+
+    const results = PROJECTION_YEARS.map(years=>{
+      const months = years * 12;
+      const futureValue = monthlyAmount * (((1 + monthlyRate) ** months - 1) / monthlyRate);
+      const totalInvested = monthlyAmount * months;
+      const profit = futureValue - totalInvested;
+      const multiple = futureValue / totalInvested;
+      return { years, futureValue, totalInvested, profit, multiple };
+    });
+
+    $("#projectionResults").innerHTML = `
+      <div style="margin-bottom:12px">
+        <h3 style="margin:0;font-size:14px">📈 ${scenario.name} 시나리오 (${scenario.label})</h3>
+        <small style="color:var(--muted)">월 $${monthlyAmount.toLocaleString()} 적립 기준</small>
+      </div>
+
+      <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+        ${results.map(r=>`
+          <div class="panel" style="box-shadow:none;padding:12px;text-align:center">
+            <div style="font-size:18px;font-weight:900;color:var(--ok)">${r.years}년</div>
+            <div style="margin:8px 0">
+              <div style="font-size:18px;font-weight:900">$${Math.round(r.futureValue).toLocaleString()}</div>
+              <div style="font-size:11px;color:var(--muted)">총 자산</div>
+            </div>
+            <div style="margin:4px 0;font-size:12px">
+              <div style="color:var(--ok);font-weight:900">+$${Math.round(r.profit).toLocaleString()}</div>
+              <div style="color:var(--muted)">수익 (${r.multiple.toFixed(1)}배)</div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">
+              투자원금: $${r.totalInvested.toLocaleString()}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    drawChart(results);
+  }
+
+  function drawChart(results){
+    const canvas = $("#projectionChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const w = rect.width, h = rect.height;
+    const pad = 44;
+
+    ctx.clearRect(0,0,w,h);
+
+    // grid
+    ctx.strokeStyle = "rgba(255,255,255,0.10)";
+    ctx.lineWidth = 1;
+    for(let i=0;i<=5;i++){
+      const y = pad + (h-pad*2)*i/5;
+      ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke();
+    }
+
+    const maxV = Math.max(...results.map(r=>r.futureValue));
+    const minV = 0;
+
+    function toXY(i, value){
+      const x = pad + (w-pad*2) * (i/(results.length-1));
+      const y = h - pad - (h-pad*2) * ((value-minV)/(maxV-minV));
+      return {x,y};
+    }
+
+    // invested line
+    ctx.strokeStyle = "rgba(184,197,230,0.65)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    results.forEach((r,i)=>{
+      const p = toXY(i, r.totalInvested);
+      if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+    });
+    ctx.stroke();
+
+    // future value line
+    ctx.strokeStyle = "rgba(16,185,129,0.95)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    results.forEach((r,i)=>{
+      const p = toXY(i, r.futureValue);
+      if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+    });
+    ctx.stroke();
+
+    // points + labels
+    ctx.fillStyle = "rgba(16,185,129,0.95)";
+    results.forEach((r,i)=>{
+      const p = toXY(i, r.futureValue);
+      ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill();
+    });
+
+    ctx.fillStyle = "rgba(184,197,230,0.95)";
+    ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
+    ctx.textAlign = "center";
+    results.forEach((r,i)=>{
+      const x = pad + (w-pad*2) * (i/(results.length-1));
+      ctx.fillText(r.years + "년", x, h-10);
+    });
+  }
+
+  // event
+  $("#monthlyAmount").oninput = updateProjection;
+  $$(".scenario-btn").forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.preventDefault();
+      $$(".scenario-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      currentScenario = parseInt(btn.dataset.i,10);
+      updateProjection();
+    };
+  });
+
+  updateProjection();
+}
+
+/* =========================
+ * ABOUT / 404
+ * ========================= */
+function renderAbout(app){
+  app.innerHTML = `
+    <section class="panel">
+      <div class="hd">
+        <h2>About Investor Lens</h2>
+        <small>투자 거물들의 렌즈로 세상을 보는 개인 위키</small>
+      </div>
+      <div class="bd">
+        <div class="note">
+          <h3 style="margin:0 0 12px;font-size:14px">목적</h3>
+          같은 자산도 투자자마다 보는 관점이 완전히 달라요.<br/>
+          이 사이트는 그 차이를 <b>체계적으로 비교</b>할 수 있게 정리해둔 개인 프로젝트입니다.
+        </div>
+
+        <div class="note" style="margin-top:12px">
+          <h3 style="margin:0 0 12px;font-size:14px">확장 방법</h3>
+          <ol style="margin:0;padding-left:18px;line-height:1.7">
+            <li><b>INVESTORS</b>에 투자자 추가</li>
+            <li><b>ASSETS</b>에 종목/ETF 추가</li>
+            <li><b>LENS</b>에 투자자×자산 분석 템플릿 추가</li>
+          </ol>
+        </div>
+
+        <div class="note" style="margin-top:12px">
+          <h3 style="margin:0 0 12px;font-size:14px">주의</h3>
+          본 사이트는 투자 조언이 아니라 학습/정리 목적입니다.
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderNotFound(app){
+  app.innerHTML = `
+    <section class="panel">
+      <div class="hd"><h2>404 - 페이지를 찾을 수 없음</h2></div>
+      <div class="bd">
+        <div class="note">
+          요청한 페이지가 없어. <a href="#/" style="color:#cfd8ff;text-decoration:underline">홈으로 돌아가기</a>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* =========================
+ * INIT
+ * ========================= */
+window.addEventListener("hashchange", route);
+window.addEventListener("load", ()=>{
+  $("#year").textContent = new Date().getFullYear();
+  route();
+});
+</script>
+</body>
+</html>
