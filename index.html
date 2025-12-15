@@ -238,6 +238,324 @@
 
     footer{margin-top:18px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;opacity:.9}
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    /* ===== Assets List UI Polish ===== */
+    :root{
+      --surface: rgba(255,255,255,0.045);
+      --surface2: rgba(0,0,0,0.20);
+      --border2: rgba(255,255,255,0.10);
+      --border3: rgba(255,255,255,0.16);
+    }
+
+    .panel .bd{ padding: 16px; }
+
+    /* 검색/필터 바 */
+    .assetsToolbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .search{
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+    .search input{ font-size: 14px; }
+
+    .seg{
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--border2);
+    }
+    .seg button{
+      padding: 10px 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .seg button.active{
+      background: rgba(102,126,234,.20);
+      color: #fff;
+    }
+
+    /* 리스트 카드 */
+    .assetItem{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:14px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border2);
+      background:
+        radial-gradient(1200px 120px at 20% 0%, rgba(102,126,234,.12), transparent 60%),
+        radial-gradient(900px 140px at 80% 100%, rgba(16,185,129,.10), transparent 60%),
+        rgba(0,0,0,.18);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .assetItem:hover{
+      transform: translateY(-2px);
+      border-color: rgba(102,126,234,.45);
+      box-shadow: 0 16px 44px rgba(0,0,0,.35);
+    }
+
+    .assetLeft{
+      display:flex;
+      gap:12px;
+      min-width:0;
+      align-items:center;
+      flex:1;
+    }
+    .assetMark{
+      width:42px;
+      height:42px;
+      border-radius: 14px;
+      border: 1px solid var(--border2);
+      background: linear-gradient(135deg, rgba(102,126,234,.25), rgba(118,75,162,.18));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      letter-spacing:-0.02em;
+      flex:0 0 auto;
+    }
+    .assetText{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .assetTopRow{
+      display:flex;
+      gap:10px;
+      align-items:baseline;
+      flex-wrap:wrap;
+    }
+    .assetSym{
+      font-size:16px;
+      font-weight:800;
+    }
+    .assetName{
+      font-size:13px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 520px;
+    }
+    .assetMeta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .assetWhy{
+      font-size:12px;
+      color: rgba(184,197,230,.95);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 620px;
+    }
+
+    .badge{
+      font-size:11px;
+      padding:6px 10px;
+      border-radius:999px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-weight:700;
+    }
+    .badge.stock{ color: rgba(16,185,129,.95); border-color: rgba(16,185,129,.25); background: rgba(16,185,129,.10); }
+    .badge.etf{ color: rgba(102,126,234,.95); border-color: rgba(102,126,234,.25); background: rgba(102,126,234,.10); }
+
+    .assetRight{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex:0 0 auto;
+    }
+    .assetPriceBox{
+      text-align:right;
+      min-width: 120px;
+    }
+    .assetPrice{
+      font-size:14px;
+      font-weight:800;
+    }
+    .assetChg{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+      margin-top:4px;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:10px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,.04);
+    }
+    .assetChg.positive{ color: var(--ok); border-color: rgba(16,185,129,.25); background: rgba(16,185,129,.10); }
+    .assetChg.negative{ color: var(--bad); border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.10); }
+
+    .assetGo{
+      width:36px;
+      height:36px;
+      border-radius: 14px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,.05);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .assetItem:hover .assetGo{
+      transform: translateX(1px);
+      border-color: rgba(102,126,234,.45);
+      background: rgba(102,126,234,.10);
+    }
+  /* ===== Home Simulation (prettier) ===== */
+  .home-sim{ margin: 54px 0 70px; }
+  .home-sim-card{
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 26px;
+    background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    box-shadow: 0 28px 80px rgba(0,0,0,.45);
+    backdrop-filter: blur(22px);
+    overflow: hidden;
+  }
+  .home-sim-hd{
+    padding: 22px 22px 14px;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+  .home-sim-title{ font-size: 20px; font-weight: 750; letter-spacing:-.02em; }
+  .home-sim-sub{ margin-top:6px; font-size: 12px; color: var(--muted); }
+  .home-sim-link{
+    font-size: 13px; color: rgba(255,255,255,.88);
+    padding: 10px 14px; border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.14);
+  }
+  .home-sim-link:hover{ border-color: rgba(102,126,234,.6); background: rgba(102,126,234,.12); }
+
+  .home-sim-form{
+    padding: 14px 22px 18px;
+    display:grid; gap:12px;
+    grid-template-columns: 1.2fr .9fr 1fr;
+  }
+  @media (max-width: 900px){
+    .home-sim-form{ grid-template-columns: 1fr; }
+  }
+
+  .form-row{ display:flex; flex-direction:column; gap:8px; }
+  .form-row label{ font-size: 12px; color: rgba(255,255,255,.85); }
+
+  .select{
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.16);
+    color: var(--text);
+  }
+
+  .money{
+    height: 42px;
+    display:flex; align-items:center; gap:8px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.16);
+  }
+  .money .unit{ color: var(--muted); font-size: 12px; }
+  .money input{
+    width:100%; border:0; outline:0;
+    background:transparent; color:var(--text);
+    font-size: 14px;
+  }
+
+  .seg2{
+    display:flex; gap:8px;
+    padding: 6px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.14);
+  }
+  .seg2-btn{
+    flex:1;
+    height: 30px;
+    border:0; cursor:pointer;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .seg2-btn.active{
+    background: linear-gradient(135deg, rgba(102,126,234,.55), rgba(118,75,162,.45));
+    color: white;
+  }
+
+  .home-sim-body{
+    padding: 18px 22px 22px;
+    display:grid; gap:18px;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 900px){
+    .home-sim-body{ grid-template-columns: 1fr; }
+  }
+
+  .sim-summary{
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    background: rgba(0,0,0,.16);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .sim-summary .big{
+    font-size: 26px; font-weight: 800;
+    letter-spacing:-.02em;
+  }
+  .sim-summary .small{
+    margin-top:6px;
+    font-size: 12px; color: var(--muted);
+  }
+
+  .sim-cards{
+    display:grid; gap:12px;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+  }
+  @media (max-width: 620px){
+    .sim-cards{ grid-template-columns: 1fr; }
+  }
+
+  .sim-card{
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    background: rgba(0,0,0,.16);
+    padding: 14px;
+  }
+  .sim-card .yr{ font-size: 12px; color: var(--muted); font-weight: 650; }
+  .sim-card .val{ margin-top:8px; font-size: 18px; font-weight: 800; }
+  .sim-card .sub{ margin-top:6px; font-size: 11px; color: var(--muted); }
+
+  .sim-right{
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    background: rgba(0,0,0,.14);
+    padding: 14px;
+  }
+  .sim-chart-hd{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom: 10px;
+  }
+  .chart-title{ font-size: 13px; font-weight: 750; }
+  .chart-legend{ font-size: 11px; color: var(--muted); }
+  .sim-footnote{ margin-top:10px; font-size: 11px; color: var(--muted); }
+
   </style>
 </head>
 
@@ -676,7 +994,11 @@ function route(){
   const id = seg[1];
   const sub = seg[2];
 
-  if (!path) return renderHome(app);
+  if(!path){
+    renderHome(app);
+    setupHomeSimulation();   // ✅ 여기가 정답
+    return;
+  }
   if (path === "investors") return id ? renderInvestor(app, id) : renderInvestors(app);
   if (path === "assets") return id ? (sub==="projection" ? renderProjection(app, id) : renderAsset(app, id)) : renderAssets(app);
   if (path === "about") return renderAbout(app);
@@ -699,6 +1021,8 @@ function renderHome(app){
         </p>
       </div>
     </section>
+
+
 
     <section class="investors-showcase" style="margin-bottom:48px">
       <div class="section-header">
@@ -746,7 +1070,6 @@ function renderHome(app){
                   ${a.change >= 0 ? '+' : ''}${a.change} (${a.changePercent >= 0 ? '+' : ''}${a.changePercent}%)
                 </span>
               </div>
-              <div class="asset-name">왜 관심? ${a.why || "-"}</div>
             </a>
           `).join("")}
         </div>
@@ -1046,16 +1369,35 @@ function renderAssets(app){
         (x.sector||"").toLowerCase().includes(term)
       );
     }
-    list.innerHTML = items.map(a=>`
-      <a class="item" href="#/assets/${a.id}">
-        <div class="left">
-          <div class="sym">${a.symbol} <span class="tag" style="margin-left:8px">${a.type.toUpperCase()}</span></div>
-          <div class="name">${a.name} · ${a.sector}</div>
-          <div class="name">왜 관심? ${a.why || "-"}</div>
+    list.innerHTML = items.map(a=> `
+      <a class="assetItem" href="#/assets/${a.id}">
+        <div class="assetLeft">
+          <div class="assetMark">${(a.symbol||"?").slice(0,2)}</div>
+          <div class="assetText">
+            <div class="assetTopRow">
+              <div class="assetSym">${a.symbol}</div>
+              <span class="badge ${a.type}">${a.type.toUpperCase()}</span>
+              <div class="assetName">${a.name} · ${a.sector || ""}</div>
+            </div>
+            <div class="assetMeta">
+              <div class="assetWhy">${a.why || "-"}</div>
+            </div>
+          </div>
         </div>
-        <span class="tag">보기 →</span>
+
+        <div class="assetRight">
+          <div class="assetPriceBox">
+            <div class="assetPrice">$${Number(a.price).toFixed(2)}</div>
+            <div class="assetChg ${a.change >= 0 ? "positive" : "negative"}">
+              <span>${a.change >= 0 ? "+" : ""}${a.change}</span>
+              <span>(${a.changePercent >= 0 ? "+" : ""}${a.changePercent}%)</span>
+            </div>
+          </div>
+          <div class="assetGo">→</div>
+        </div>
       </a>
     `).join("") || `<div class="note">검색 결과가 없어. 다른 키워드로 해봐.</div>`;
+
   };
 
   const setFilter = (f)=>{
@@ -1467,6 +1809,37 @@ window.addEventListener("load", ()=>{
   $("#year").textContent = new Date().getFullYear();
   route();
 });
+function setupHomeSimulation(){
+  // 초기 선택
+  const sel = $("#homeAssetSelect");
+  if (sel) {
+    sel.value = homeCurrentAsset || "nvda";
+    sel.onchange = () => {
+      homeCurrentAsset = sel.value;
+      homeCurrentScenario = 0;
+      setSegActive(0);
+      updateHomeProjection();
+    };
+  }
+
+  const input = $("#homeMonthlyAmount");
+  if (input) input.oninput = updateHomeProjection;
+
+  $("#homeScenario0").onclick = () => { homeCurrentScenario=0; setSegActive(0); updateHomeProjection(); };
+  $("#homeScenario1").onclick = () => { homeCurrentScenario=1; setSegActive(1); updateHomeProjection(); };
+  $("#homeScenario2").onclick = () => { homeCurrentScenario=2; setSegActive(2); updateHomeProjection(); };
+
+  updateHomeProjection();
+}
+
+function setSegActive(i){
+  ["homeScenario0","homeScenario1","homeScenario2"].forEach((id, idx)=>{
+    const el = $("#"+id);
+    if (el) el.classList.toggle("active", idx===i);
+  });
+}
+
+
 </script>
 </body>
 </html>
